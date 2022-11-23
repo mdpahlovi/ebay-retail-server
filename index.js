@@ -15,6 +15,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const database = async () => {
     const usersCollection = client.db("ebay").collection("users");
+    const blogsCollection = client.db("ebay").collection("blogs");
 
     // Save User To DB , Generate & Sent JWT Token to site
     app.put("/user/:email", async (req, res) => {
@@ -30,6 +31,13 @@ const database = async () => {
             expiresIn: "1d",
         });
         res.send({ result, token });
+    });
+
+    // Get Blogs
+    app.get("/blogs", async (req, res) => {
+        const curser = blogsCollection.find({});
+        const blogs = await curser.toArray();
+        res.send(blogs);
     });
 };
 
