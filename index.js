@@ -60,11 +60,20 @@ const database = async () => {
         res.send({ result, token });
     });
 
-    // Get All User For Admin
-    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
-        const cursor = userCollection.find({});
-        const users = await cursor.toArray();
-        res.send(users);
+    // Get All Buyer For Admin
+    app.get("/users/allbuyer", verifyJWT, verifyAdmin, async (req, res) => {
+        const query = { role: "buyer" };
+        const cursor = userCollection.find(query);
+        const buyers = await cursor.toArray();
+        res.send(buyers);
+    });
+
+    // Get All Seller For Admin
+    app.get("/users/allseller", verifyJWT, verifyAdmin, async (req, res) => {
+        const query = { role: "seller" };
+        const cursor = userCollection.find(query);
+        const sellers = await cursor.toArray();
+        res.send(sellers);
     });
 
     // Get The User Bu Email
