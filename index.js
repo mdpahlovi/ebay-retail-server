@@ -1,7 +1,7 @@
 require("dotenv").config();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 5000;
@@ -87,6 +87,19 @@ const database = async () => {
         const query = { email: email };
         const user = await userCollection.findOne(query);
         res.send(user);
+    });
+
+    // Delete review
+    app.delete("/user/:email", async (req, res) => {
+        const { email } = req.params;
+        const query = { email: email };
+        const result = await userCollection.deleteOne(query);
+        if (result.deletedCount) {
+            res.send({
+                success: true,
+                message: "Successfully Deleted",
+            });
+        }
     });
 
     // Get Blogs
