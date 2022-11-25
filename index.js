@@ -102,6 +102,18 @@ const database = async () => {
         }
     });
 
+    // Add Products
+    app.post("/products", verifyJWT, async (req, res) => {
+        const home = req.body;
+        const result = await productCollection.insertOne(home);
+        if (result.insertedId) {
+            res.send({
+                success: true,
+                message: "Successfully Added Product",
+            });
+        }
+    });
+
     // Get Blogs
     app.get("/blogs", async (req, res) => {
         const curser = blogCollection.find({});
