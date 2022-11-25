@@ -11,7 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_User}:${process.env.DB_Pass}@cluster.qheqolp.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverApi: ServerApiVersion.v1,
+});
 
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -76,7 +80,7 @@ const database = async () => {
         res.send(sellers);
     });
 
-    // Get The User Bu Email
+    // Get The User By Email
     app.get("/user/:email", verifyJWT, async (req, res) => {
         const { email } = req.params;
         const decodedEmail = req.decoded.email;
@@ -89,7 +93,7 @@ const database = async () => {
         res.send(user);
     });
 
-    // Delete review
+    // Delete User
     app.delete("/user/:email", async (req, res) => {
         const { email } = req.params;
         const query = { email: email };
@@ -130,12 +134,27 @@ const database = async () => {
         res.send(categories);
     });
 
-    // Get Data Under Category
+    // Get Products Under Category
     app.get("/category/:category", async (req, res) => {
         const { category } = req.params;
         const query = { category: category };
         const curser = productCollection.find(query);
         const products = await curser.toArray();
+        res.send(products);
+    });
+
+    // Get Products By Email
+    app.get("/products/:email", verifyJWT, async (req, res) => {
+        const { email } = req.params;
+        const decodedEmail = req.decoded.email;
+        if (email !== decodedEmail) {
+            return res.status(403).send({ message: "Forbidden Access" });
+        }
+        const query = { seller_email: email };
+        console.log(query);
+        const curser = productCollection.find(query);
+        const products = await curser.toArray();
+        console.log(products);
         res.send(products);
     });
 };
