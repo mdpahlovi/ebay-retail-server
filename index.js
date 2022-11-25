@@ -151,11 +151,35 @@ const database = async () => {
             return res.status(403).send({ message: "Forbidden Access" });
         }
         const query = { seller_email: email };
-        console.log(query);
         const curser = productCollection.find(query);
         const products = await curser.toArray();
-        console.log(products);
         res.send(products);
+    });
+
+    // Delete Product
+    app.delete("/product/:id", async (req, res) => {
+        const { id } = req.params;
+        const query = { _id: ObjectId(id) };
+        const result = await productCollection.deleteOne(query);
+        if (result.deletedCount) {
+            res.send({
+                success: true,
+                message: "Successfully Deleted",
+            });
+        }
+    });
+
+    // Book Product
+    app.patch("/product/:id", async (req, res) => {
+        const { id } = req.params;
+        const query = { _id: ObjectId(id) };
+        const result = await productCollection.updateOne(query, { $set: req.body });
+        if (result.matchedCount) {
+            res.send({
+                success: true,
+                message: "Successfully Booked",
+            });
+        }
     });
 };
 
