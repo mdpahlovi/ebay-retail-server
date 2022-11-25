@@ -121,12 +121,22 @@ const database = async () => {
         res.send(blogs);
     });
 
+    // Get All Categories
     app.get("/categories", async (req, res) => {
         const curser = productCollection.find({});
         const products = await curser.toArray();
         const allCategories = products.map((product) => product.category);
         const categories = allCategories.filter((v, i, a) => a.indexOf(v) === i);
         res.send(categories);
+    });
+
+    // Get Data Under Category
+    app.get("/category/:category", async (req, res) => {
+        const { category } = req.params;
+        const query = { category: category };
+        const curser = productCollection.find(query);
+        const products = await curser.toArray();
+        res.send(products);
     });
 };
 
