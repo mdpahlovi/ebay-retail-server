@@ -84,7 +84,6 @@ const database = async () => {
     app.get("/user/:email", verifyJWT, async (req, res) => {
         const { email } = req.params;
         const decodedEmail = req.decoded.email;
-
         if (email !== decodedEmail) {
             return res.status(403).send({ message: "Forbidden Access" });
         }
@@ -94,40 +93,26 @@ const database = async () => {
     });
 
     // Delete User
-    app.delete("/user/:email", async (req, res) => {
+    app.delete("/user/:email", verifyJWT, verifyAdmin, async (req, res) => {
         const { email } = req.params;
+        const decodedEmail = req.decoded.email;
+        if (email !== decodedEmail) {
+            return res.status(403).send({ message: "Forbidden Access" });
+        }
         const query = { email: email };
         const result = await userCollection.deleteOne(query);
         if (result.deletedCount) {
-            res.send({
-                success: true,
-                message: "Successfully Deleted",
-            });
+            res.send({ message: "Successfully Deleted" });
         }
     });
 
     // Verifiy User
-    app.patch("/user/:email", async (req, res) => {
+    app.patch("/user/:email", verifyJWT, verifyAdmin, async (req, res) => {
         const { email } = req.params;
         const query = { email: email };
         const result = await userCollection.updateOne(query, { $set: req.body });
         if (result.matchedCount) {
-            res.send({
-                success: true,
-                message: "Successfully Verified",
-            });
-        }
-    });
-
-    // Add Products
-    app.post("/products", verifyJWT, async (req, res) => {
-        const home = req.body;
-        const result = await productCollection.insertOne(home);
-        if (result.insertedId) {
-            res.send({
-                success: true,
-                message: "Successfully Added Product",
-            });
+            res.send({ message: "Successfully Verified" });
         }
     });
 
@@ -156,6 +141,15 @@ const database = async () => {
         res.send(products);
     });
 
+    // Add Products
+    app.post("/products", verifyJWT, async (req, res) => {
+        const home = req.body;
+        const result = await productCollection.insertOne(home);
+        if (result.insertedId) {
+            res.send({ message: "Successfully Added Product" });
+        }
+    });
+
     // Get Products By Email
     app.get("/products/:email", verifyJWT, async (req, res) => {
         const { email } = req.params;
@@ -175,10 +169,7 @@ const database = async () => {
         const query = { _id: ObjectId(id) };
         const result = await productCollection.deleteOne(query);
         if (result.deletedCount) {
-            res.send({
-                success: true,
-                message: "Successfully Deleted",
-            });
+            res.send({ message: "Successfully Deleted" });
         }
     });
 
@@ -188,24 +179,32 @@ const database = async () => {
         const query = { _id: ObjectId(id) };
         const result = await productCollection.updateOne(query, { $set: req.body });
         if (result.matchedCount) {
-            res.send({
-                success: true,
-                message: "Successfully Booked",
-            });
+            res.send({ message: "Successfully Booked" });
         }
     });
 
-    //Verify Seller Products
-    app.patch("/products/:email", async (req, res) => {
+    //Verify Seller All Product
+    app.patch("/products/:email", verifyJWT, verifyAdmin, async (req, res) => {
         const { email } = req.params;
         const query = { seller_email: email };
-        const result = await productCollection.updateMany(query, { $set: req.body });
-        if (result.matchedCount) {
-            res.send({
-                success: true,
-                message: "Successfully Verified",
-            });
+        const curser = productCollection.find(query);
+        const products = await curser.toArray();
+        if (products.length !== 0) {
+            const result = await productCollection.updateMany(query, { $set: req.body });
+            if (result.matchedCount) {
+                res.send({ message: "Successfully Verified" });
+            }
+        } else {
+            res.send({ message: "Successfully Verified" });
         }
+    });
+
+    // Get Adverticed-product
+    app.get("/adverties-product", async (req, res) => {
+        const query = { advertised: true };
+        const curser = productCollection.find(query);
+        const products = await curser.toArray();
+        res.send(products);
     });
 };
 
