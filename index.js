@@ -106,6 +106,19 @@ const database = async () => {
         }
     });
 
+    // Verifiy User
+    app.patch("/user/:email", async (req, res) => {
+        const { email } = req.params;
+        const query = { email: email };
+        const result = await userCollection.updateOne(query, { $set: req.body });
+        if (result.matchedCount) {
+            res.send({
+                success: true,
+                message: "Successfully Verified",
+            });
+        }
+    });
+
     // Add Products
     app.post("/products", verifyJWT, async (req, res) => {
         const home = req.body;
@@ -178,6 +191,19 @@ const database = async () => {
             res.send({
                 success: true,
                 message: "Successfully Booked",
+            });
+        }
+    });
+
+    //Verify Seller Products
+    app.patch("/products/:email", async (req, res) => {
+        const { email } = req.params;
+        const query = { seller_email: email };
+        const result = await productCollection.updateMany(query, { $set: req.body });
+        if (result.matchedCount) {
+            res.send({
+                success: true,
+                message: "Successfully Verified",
             });
         }
     });
