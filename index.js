@@ -93,7 +93,7 @@ const database = async () => {
     });
 
     // Delete User
-    app.delete("/user/:email", verifyJWT, verifyAdmin, async (req, res) => {
+    app.delete("/user/:email", verifyJWT, async (req, res) => {
         const { email } = req.params;
         const decodedEmail = req.decoded.email;
         if (email !== decodedEmail) {
