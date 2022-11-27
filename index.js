@@ -93,12 +93,8 @@ const database = async () => {
     });
 
     // Delete User
-    app.delete("/user/:email", verifyJWT, async (req, res) => {
+    app.delete("/user/:email", verifyJWT, verifyAdmin, async (req, res) => {
         const { email } = req.params;
-        const decodedEmail = req.decoded.email;
-        if (email !== decodedEmail) {
-            return res.status(403).send({ message: "Forbidden Access" });
-        }
         const query = { email: email };
         const result = await userCollection.deleteOne(query);
         if (result.deletedCount) {
@@ -164,7 +160,7 @@ const database = async () => {
     });
 
     // Delete Product
-    app.delete("/product/:id", async (req, res) => {
+    app.delete("/product/:id", verifyJWT, async (req, res) => {
         const { id } = req.params;
         const query = { _id: ObjectId(id) };
         const result = await productCollection.deleteOne(query);
@@ -173,8 +169,8 @@ const database = async () => {
         }
     });
 
-    // Book Product
-    app.patch("/product/:id", async (req, res) => {
+    // Book & Update Product
+    app.patch("/product/:id", verifyJWT, async (req, res) => {
         const { id } = req.params;
         const query = { _id: ObjectId(id) };
         const result = await productCollection.updateOne(query, { $set: req.body });
@@ -200,7 +196,7 @@ const database = async () => {
     });
 
     // Get Adverticed-product
-    app.get("/adverties-product", async (req, res) => {
+    app.get("/adverties-product", verifyJWT, async (req, res) => {
         const query = { advertised: true };
         const curser = productCollection.find(query);
         const products = await curser.toArray();
