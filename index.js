@@ -196,7 +196,7 @@ const database = async () => {
     });
 
     // Get Adverticed-product
-    app.get("/adverties-product", verifyJWT, async (req, res) => {
+    app.get("/adverties-product", async (req, res) => {
         const query = { advertised: true };
         const curser = productCollection.find(query);
         const products = await curser.toArray();
